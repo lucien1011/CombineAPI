@@ -1,11 +1,12 @@
 import glob,os,argparse,subprocess
 
 asym_limit_name = "AsymptoticLimits"
+defaultFileName = "card.root"
 
 class CombineOption(object):
-    def __init__(self,cardDir,wsFileName=None,method=asym_limit_name,verbose=False,option=None):
+    def __init__(self,cardDir,wsFileName=None,method=asym_limit_name,verbose=False,option=None,):
         self.cardDir = cardDir
-        self.wsFileName = wsFileName if wsFileName else cardDir+"card.root"
+        self.wsFileName = wsFileName if wsFileName else cardDir+defaultFileName
         self.method = method
         self.verbose = verbose
         self.option = option
