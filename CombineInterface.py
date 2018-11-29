@@ -29,6 +29,8 @@ class CombineAPI(object):
             print "Method", option.method
         items = ["combine","-M",option.method,option.wsFileName]
         if option.option: items += option.option
+        if option.verbose:
+            print " ".join(items)
         outDir = os.path.dirname(option.wsFileName)
         items.append("--out="+outDir)
         file_out = open(option.cardDir+mlfit_name+"_Out.txt","w")
@@ -62,6 +64,8 @@ class CombineAPI(object):
             print "Method", option.method
         items = ["combine","-M",option.method,option.wsFileName]
         if option.option: items += option.option
+        if option.verbose:
+            print " ".join(items)
         file_out = open(option.cardDir+asym_limit_name+"_Out.txt","w")
         file_err = open(option.cardDir+asym_limit_name+"_Err.txt","w")
         out = subprocess.Popen(
