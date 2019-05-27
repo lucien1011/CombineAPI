@@ -2,6 +2,7 @@ import glob,os,argparse,subprocess
 
 asym_limit_name = "AsymptoticLimits"
 mlfit_name = "FitDiagnostics"
+signif_name = "Significance"
 defaultFileName = "card.root"
 
 class CombineOption(object):
@@ -19,14 +20,52 @@ class CombineAPI(object):
             self.run_asym_limit(option)
         elif option.method == mlfit_name:
             self.run_mlfit(option)
+        elif option.method == signif_name:
+            self.run_signif(option)
         else:
             raise RuntimeError,"Another option not supported atm"
 
+    def printHeader(self,option):
+        print "*"*20
+        print "Running on ws", option.wsFileName
+        print "Method", option.method
+        items = ["combine","-M",option.method,option.wsFileName]
+
+
+    def run_signif(self,option):
+        if option.verbose:
+            self.printHeader(option)
+        items = ["combine","-M",option.method,option.wsFileName]
+        if option.option: items += option.option
+        if option.verbose:
+            print " ".join(items)
+        outDir = os.path.dirname(option.wsFileName)
+        file_out = open(option.cardDir+signif_name+"_Out.txt","w")
+        file_err = open(option.cardDir+signif_name+"_Err.txt","w")
+        out = subprocess.Popen(
+                items,
+                stdout=subprocess.PIPE, 
+                #stdout=file_out, 
+                stderr=subprocess.STDOUT,
+                #stderr=file_err, 
+                )
+        stdout,stderr = out.communicate()
+        file_out.write(stdout)
+        file_err.write(stdout)
+        file_out.close()
+        file_err.close()
+        outFileNames = [
+                #"fitDiagnostics.root",
+                #"combine_logger.out",
+                "higgsCombineTest.Significance.mH120.root",
+                ]
+        for outFileName in outFileNames:
+            if glob.glob(outFileName):
+                os.system("mv "+outFileName+" "+option.cardDir)
+
     def run_mlfit(self,option):
         if option.verbose:
-            print "*"*20
-            print "Running on ws", option.wsFileName
-            print "Method", option.method
+            self.printHeader(option)
         items = ["combine","-M",option.method,option.wsFileName]
         if option.option: items += option.option
         if option.verbose:
@@ -59,9 +98,7 @@ class CombineAPI(object):
 
     def run_asym_limit(self,option):
         if option.verbose:
-            print "*"*20
-            print "Running on ws", option.wsFileName
-            print "Method", option.method
+            self.printHeader(option)
         items = ["combine","-M",option.method,option.wsFileName]
         if option.option: items += option.option
         if option.verbose:
