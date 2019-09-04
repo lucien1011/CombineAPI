@@ -3,6 +3,7 @@ import glob,os,argparse,subprocess
 asym_limit_name = "AsymptoticLimits"
 mlfit_name = "FitDiagnostics"
 signif_name = "Significance"
+impact_name = "Impacts"
 defaultFileName = "card.root"
 
 class CombineOption(object):
@@ -20,6 +21,8 @@ class CombineAPI(object):
             self.run_asym_limit(option)
         elif option.method == mlfit_name:
             self.run_mlfit(option)
+        elif option.method == impact_name:
+            self.run_impact(option)
         elif option.method == signif_name:
             self.run_signif(option)
         else:
@@ -31,6 +34,77 @@ class CombineAPI(object):
         print "Method", option.method
         items = ["combine","-M",option.method,option.wsFileName]
 
+    def run_impact(self,option):
+        if option.verbose:
+            self.printHeader(option)
+        items = ["combineTool.py","-M",option.method,"-d",option.wsFileName,"-m","125","--doInitialFit","--robustFit","1",]
+        if option.option: items += option.option
+        if option.verbose:
+            print " ".join(items)
+        outDir = os.path.dirname(option.wsFileName)
+        file_out = open(option.cardDir+impact_name+"_initialFit_Out.txt","w")
+        file_err = open(option.cardDir+impact_name+"_initialFit_Err.txt","w")
+        out = subprocess.Popen(
+                items,
+                stdout=subprocess.PIPE, 
+                #stdout=file_out, 
+                stderr=subprocess.STDOUT,
+                #stderr=file_err, 
+                )
+        stdout,stderr = out.communicate()
+        file_out.write(stdout)
+        file_err.write(stdout)
+        file_out.close()
+        file_err.close()
+
+        items = ["combineTool.py","-M",option.method,"-d",option.wsFileName,"-m","125","--doFits","--robustFit","1",]
+        if option.option: items += option.option
+        if option.verbose:
+            print " ".join(items)
+        outDir = os.path.dirname(option.wsFileName)
+        file_out = open(option.cardDir+impact_name+"_paramFit_Out.txt","w")
+        file_err = open(option.cardDir+impact_name+"_paramFit_Err.txt","w")
+        out = subprocess.Popen(
+                items,
+                stdout=subprocess.PIPE, 
+                #stdout=file_out, 
+                stderr=subprocess.STDOUT,
+                #stderr=file_err, 
+                )
+        stdout,stderr = out.communicate()
+        file_out.write(stdout)
+        file_err.write(stdout)
+        file_out.close()
+        file_err.close()
+
+        items = ["combineTool.py","-M",option.method,"-d",option.wsFileName,"-m","125","-o","impacts.json",]
+        if option.option: items += option.option
+        if option.verbose:
+            print " ".join(items)
+        outDir = os.path.dirname(option.wsFileName)
+        file_out = open(option.cardDir+impact_name+"_json_Out.txt","w")
+        file_err = open(option.cardDir+impact_name+"_json_Err.txt","w")
+        out = subprocess.Popen(
+                items,
+                stdout=subprocess.PIPE, 
+                #stdout=file_out, 
+                stderr=subprocess.STDOUT,
+                #stderr=file_err, 
+                )
+        stdout,stderr = out.communicate()
+        file_out.write(stdout)
+        file_err.write(stdout)
+        file_out.close()
+        file_err.close()
+        outFileNames = [
+                "combine_logger.out",
+                "higgsCombine_initialFit_Test.MultiDimFit.mH125.root",
+                "higgsCombine_paramFit_Test*.MultiDimFit.mH125.root",
+                "impacts.json",
+                ]
+        for outFileName in outFileNames:
+            if glob.glob(outFileName):
+                os.system("mv "+outFileName+" "+option.cardDir)
 
     def run_signif(self,option):
         if option.verbose:
