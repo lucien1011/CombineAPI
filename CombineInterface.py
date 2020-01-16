@@ -28,6 +28,13 @@ class CombineAPI(object):
         else:
             raise RuntimeError,"Another option not supported atm"
 
+    def make_cmd(self,option):
+        if option.method == asym_limit_name:
+            return self.make_asym_limit_cmd(option)
+        else:
+            raise RuntimeError,"Another option not supported atm"
+
+
     def printHeader(self,option):
         print "*"*20
         print "Running on ws", option.wsFileName
@@ -193,3 +200,12 @@ class CombineAPI(object):
         file_err.close()
         outFileName = "higgsCombineTest.AsymptoticLimits.mH120.root"
         os.system("mv "+outFileName+" "+option.cardDir)
+
+    def make_asym_limit_cmd(self,option):
+        if option.verbose:
+            self.printHeader(option)
+        items = ["combine","-M",option.method,option.wsFileName]
+        if option.option: items += option.option
+        if option.verbose:
+            print " ".join(items)
+        return " ".join(items)
