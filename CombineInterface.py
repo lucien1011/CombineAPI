@@ -1,6 +1,7 @@
 import glob,os,argparse,subprocess
 
 asym_limit_name = "AsymptoticLimits"
+toy_limit_name = "HybridNew"
 mlfit_name = "FitDiagnostics"
 signif_name = "Significance"
 impact_name = "Impacts"
@@ -19,6 +20,8 @@ class CombineAPI(object):
     def run(self,option):
         if option.method == asym_limit_name:
             self.run_asym_limit(option)
+        elif option.method == toy_limit_name:
+            self.run_toy_limit(option)
         elif option.method == mlfit_name:
             self.run_mlfit(option)
         elif option.method == impact_name:
@@ -209,3 +212,27 @@ class CombineAPI(object):
         if option.verbose:
             print " ".join(items)
         return " ".join(items)
+
+    def run_toy_limit(self,option):
+        if option.verbose:
+            self.printHeader(option)
+        items = ["combine","-M",option.method,option.wsFileName]
+        if option.option: items += option.option
+        if option.verbose:
+            print " ".join(items)
+        file_out = open(option.cardDir+toy_limit_name+"_Out.txt","w")
+        file_err = open(option.cardDir+toy_limit_name+"_Err.txt","w")
+        out = subprocess.Popen(
+                items,
+                stdout=subprocess.PIPE, 
+                #stdout=file_out, 
+                stderr=subprocess.STDOUT,
+                #stderr=file_err, 
+                )
+        stdout,stderr = out.communicate()
+        file_out.write(stdout)
+        file_err.write(stdout)
+        file_out.close()
+        file_err.close()
+        outFileName = "higgsCombineTest.HybridNew.mH120.root"
+        os.system("mv "+outFileName+" "+option.cardDir)
