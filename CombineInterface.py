@@ -34,6 +34,8 @@ class CombineAPI(object):
     def make_cmd(self,option):
         if option.method == asym_limit_name:
             return self.make_asym_limit_cmd(option)
+        elif option.method == toy_limit_name:
+            return self.make_asym_limit_cmd(option)
         else:
             raise RuntimeError,"Another option not supported atm"
 
