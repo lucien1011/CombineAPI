@@ -8,12 +8,13 @@ impact_name = "Impacts"
 defaultFileName = "card.root"
 
 class CombineOption(object):
-    def __init__(self,cardDir,wsFileName=None,method=asym_limit_name,verbose=False,option=None,):
+    def __init__(self,cardDir,wsFileName=None,method=asym_limit_name,verbose=False,option=None,run_in_wsdir=False,):
         self.cardDir = cardDir
         self.wsFileName = wsFileName if wsFileName else cardDir+defaultFileName
         self.method = method
         self.verbose = verbose
         self.option = option
+        self.run_in_wsdir = run_in_wsdir
         pass
 
 class CombineAPI(object):
@@ -54,8 +55,8 @@ class CombineAPI(object):
         if option.verbose:
             print " ".join(items)
         outDir = os.path.dirname(option.wsFileName)
-        file_out = open(option.cardDir+impact_name+"_initialFit_Out.txt","w")
-        file_err = open(option.cardDir+impact_name+"_initialFit_Err.txt","w")
+        file_out = open(os.path.join(option.cardDir,impact_name+"_initialFit_Out.txt"),"w")
+        file_err = open(os.path.join(option.cardDir,impact_name+"_initialFit_Err.txt"),"w")
         out = subprocess.Popen(
                 items,
                 stdout=subprocess.PIPE, 
@@ -74,8 +75,8 @@ class CombineAPI(object):
         if option.verbose:
             print " ".join(items)
         outDir = os.path.dirname(option.wsFileName)
-        file_out = open(option.cardDir+impact_name+"_paramFit_Out.txt","w")
-        file_err = open(option.cardDir+impact_name+"_paramFit_Err.txt","w")
+        file_out = open(os.path.join(option.cardDir,impact_name+"_paramFit_Out.txt"),"w")
+        file_err = open(os.path.join(option.cardDir,impact_name+"_paramFit_Err.txt"),"w")
         out = subprocess.Popen(
                 items,
                 stdout=subprocess.PIPE, 
@@ -94,8 +95,8 @@ class CombineAPI(object):
         if option.verbose:
             print " ".join(items)
         outDir = os.path.dirname(option.wsFileName)
-        file_out = open(option.cardDir+impact_name+"_json_Out.txt","w")
-        file_err = open(option.cardDir+impact_name+"_json_Err.txt","w")
+        file_out = open(os.path.join(option.cardDir,impact_name+"_Out.txt"),"w")
+        file_err = open(os.path.join(option.cardDir,impact_name+"_Err.txt"),"w")
         out = subprocess.Popen(
                 items,
                 stdout=subprocess.PIPE, 
@@ -126,8 +127,8 @@ class CombineAPI(object):
         if option.verbose:
             print " ".join(items)
         outDir = os.path.dirname(option.wsFileName)
-        file_out = open(option.cardDir+signif_name+"_Out.txt","w")
-        file_err = open(option.cardDir+signif_name+"_Err.txt","w")
+        file_out = open(os.path.join(option.cardDir,signif_name+"_Out.txt"),"w")
+        file_err = open(os.path.join(option.cardDir,signif_name+"_Err.txt"),"w")
         out = subprocess.Popen(
                 items,
                 stdout=subprocess.PIPE, 
@@ -158,8 +159,8 @@ class CombineAPI(object):
             print " ".join(items)
         outDir = os.path.dirname(option.wsFileName)
         items.append("--out="+outDir)
-        file_out = open(option.cardDir+mlfit_name+"_Out.txt","w")
-        file_err = open(option.cardDir+mlfit_name+"_Err.txt","w")
+        file_out = open(os.path.join(option.cardDir,mlfit_name+"_Out.txt"),"w")
+        file_err = open(os.path.join(option.cardDir,mlfit_name+"_Err.txt"),"w")
         out = subprocess.Popen(
                 items,
                 stdout=subprocess.PIPE, 
@@ -189,22 +190,24 @@ class CombineAPI(object):
         if option.option: items += option.option
         if option.verbose:
             print " ".join(items)
-        file_out = open(option.cardDir+asym_limit_name+"_Out.txt","w")
-        file_err = open(option.cardDir+asym_limit_name+"_Err.txt","w")
+        file_out = open(os.path.join(option.cardDir,asym_limit_name+"_Out.txt"),"w")
+        file_err = open(os.path.join(option.cardDir,asym_limit_name+"_Err.txt"),"w")
         out = subprocess.Popen(
                 items,
                 stdout=subprocess.PIPE, 
                 #stdout=file_out, 
                 stderr=subprocess.STDOUT,
-                #stderr=file_err, 
+                #stderr=file_err,
+                cwd=option.cardDir if option.run_in_wsdir else "./"
                 )
         stdout,stderr = out.communicate()
         file_out.write(stdout)
         file_err.write(stdout)
         file_out.close()
         file_err.close()
-        outFileName = "higgsCombineTest.AsymptoticLimits.mH120.root"
-        os.system("mv "+outFileName+" "+option.cardDir)
+        if not option.run_in_wsdir:
+            outFileName = "higgsCombineTest.AsymptoticLimits.mH120.root"
+            os.system("mv "+outFileName+" "+option.cardDir)
 
     def make_asym_limit_cmd(self,option):
         if option.verbose:
