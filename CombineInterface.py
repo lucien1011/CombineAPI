@@ -8,13 +8,14 @@ impact_name = "Impacts"
 defaultFileName = "card.root"
 
 class CombineOption(object):
-    def __init__(self,cardDir,wsFileName=None,method=asym_limit_name,verbose=False,option=None,run_in_wsdir=False,):
+    def __init__(self,cardDir,wsFileName=None,method=asym_limit_name,verbose=False,option=None,run_in_wsdir=False,tag=None):
         self.cardDir = cardDir
         self.wsFileName = wsFileName if wsFileName else cardDir+defaultFileName
         self.method = method
         self.verbose = verbose
         self.option = option
         self.run_in_wsdir = run_in_wsdir
+        self.tag = tag
         pass
 
 class CombineAPI(object):
@@ -127,14 +128,16 @@ class CombineAPI(object):
         if option.verbose:
             print " ".join(items)
         outDir = os.path.dirname(option.wsFileName)
-        file_out = open(os.path.join(option.cardDir,signif_name+"_Out.txt"),"w")
-        file_err = open(os.path.join(option.cardDir,signif_name+"_Err.txt"),"w")
+        txtFileNameTag = signif_name+"_"+option.tag if option.tag else signif_name
+        file_out = open(os.path.join(option.cardDir,txtFileNameTag+"_Out.txt"),"w")
+        file_err = open(os.path.join(option.cardDir,txtFileNameTag+"_Err.txt"),"w")
         out = subprocess.Popen(
                 items,
                 stdout=subprocess.PIPE, 
                 #stdout=file_out, 
                 stderr=subprocess.STDOUT,
                 #stderr=file_err, 
+                cwd=option.cardDir if option.run_in_wsdir else "./"
                 )
         stdout,stderr = out.communicate()
         file_out.write(stdout)
@@ -147,8 +150,13 @@ class CombineAPI(object):
                 "higgsCombineTest.Significance.mH120.root",
                 ]
         for outFileName in outFileNames:
-            if glob.glob(outFileName):
-                os.system("mv "+outFileName+" "+option.cardDir)
+            if not option.run_in_wsdir:
+                if not option.tag:
+                    os.system("mv "+outFileName+" "+option.cardDir)
+                else:
+                    outFileList = outFileName.split(".")
+                    outFileList.insert(len(outFileList)-1,option.tag)
+                    os.system("mv "+outFileName+" "+os.path.join(option.cardDir,".".join(outFileList)))
 
     def run_mlfit(self,option):
         if option.verbose:
@@ -159,14 +167,16 @@ class CombineAPI(object):
             print " ".join(items)
         outDir = os.path.dirname(option.wsFileName)
         items.append("--out="+outDir)
-        file_out = open(os.path.join(option.cardDir,mlfit_name+"_Out.txt"),"w")
-        file_err = open(os.path.join(option.cardDir,mlfit_name+"_Err.txt"),"w")
+        txtFileNameTag = mlfit_name+"_"+option.tag if option.tag else mlfit_name
+        file_out = open(os.path.join(option.cardDir,txtFileNameTag+"_Out.txt"),"w")
+        file_err = open(os.path.join(option.cardDir,txtFileNameTag+"_Err.txt"),"w")
         out = subprocess.Popen(
                 items,
                 stdout=subprocess.PIPE, 
                 #stdout=file_out, 
                 stderr=subprocess.STDOUT,
                 #stderr=file_err, 
+                cwd=option.cardDir if option.run_in_wsdir else "./"
                 )
         stdout,stderr = out.communicate()
         file_out.write(stdout)
@@ -180,8 +190,13 @@ class CombineAPI(object):
                 "*.png",
                 ]
         for outFileName in outFileNames:
-            if glob.glob(outFileName):
-                os.system("mv "+outFileName+" "+option.cardDir)
+            if not option.run_in_wsdir:
+                if not option.tag:
+                    os.system("mv "+outFileName+" "+option.cardDir)
+                else:
+                    outFileList = outputFile.split(".")
+                    outFileList.insert(len(outFileList)-1,option.tag)
+                    os.system("mv "+outFileName+" "+os.path.join(option.cardDir,".".join(outFileList)))
 
     def run_asym_limit(self,option):
         if option.verbose:
