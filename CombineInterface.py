@@ -8,7 +8,7 @@ impact_name = "Impacts"
 defaultFileName = "card.root"
 
 class CombineOption(object):
-    def __init__(self,cardDir,wsFileName=None,method=asym_limit_name,verbose=False,option=None,run_in_wsdir=False,tag=None):
+    def __init__(self,cardDir,wsFileName=None,method=asym_limit_name,verbose=False,option=None,run_in_wsdir=False,tag=None,useHarvester=False):
         self.cardDir = cardDir
         self.wsFileName = wsFileName if wsFileName else cardDir+defaultFileName
         self.method = method
@@ -16,6 +16,7 @@ class CombineOption(object):
         self.option = option
         self.run_in_wsdir = run_in_wsdir
         self.tag = tag
+        self.useHarvester = useHarvester
         pass
 
 class CombineAPI(object):
@@ -227,7 +228,11 @@ class CombineAPI(object):
     def make_asym_limit_cmd(self,option):
         if option.verbose:
             self.printHeader(option)
-        items = ["combine","-M",option.method,option.wsFileName]
+        if option.useHarvester:
+            start_cmd = "combineTool.py"
+        else:
+            start_cmd = "combine"
+        items = [start_cmd,"-M",option.method,option.wsFileName]
         if option.option: items += option.option
         if option.verbose:
             print " ".join(items)
