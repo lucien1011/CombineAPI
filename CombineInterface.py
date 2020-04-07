@@ -158,6 +158,11 @@ class CombineAPI(object):
                     outFileList = outFileName.split(".")
                     outFileList.insert(len(outFileList)-1,option.tag)
                     os.system("mv "+outFileName+" "+os.path.join(option.cardDir,".".join(outFileList)))
+            else:
+                if option.tag:
+                    outFileList = os.path.join(option.cardDir,outFileName).split(".")
+                    outFileList.insert(len(outFileList)-1,option.tag)
+                    os.system("mv "+os.path.join(option.cardDir,outFileName)+" "+os.path.join(option.cardDir,".".join(outFileList)))
 
     def run_mlfit(self,option):
         if option.verbose:
